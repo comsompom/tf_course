@@ -92,19 +92,14 @@ resource "aws_eip" "prod_web" {
   }
 }
 
-resource "aws_elb" "prod_web" {
-  name            = "prod-web"
-  instances       = aws_instance.prod_web[*].id
-  subnets         = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
-  security_groups = [aws_security_group.prod_web.id]
+module "web_app" {
+  source = "./modules/web_app"
 
-  listener {
-    instance_port     = 80
-    instance_protocol = "http"
-    lb_port           = 80
-    lb_protocol       = "http"
-  }
-  tags = {
-    "Terraform" : "true"
-  }
+  web_ami           = var.web_ami
+  web_instance_type = var.web_instance_type
+  subnets           = [aws_default_subnet.default_az1.id,aws_default_subnet.default_az2.id]
+  security_groups   = [aws_security_group.prod_web.id]
+  web_app           = "prod"
 }
+
+
